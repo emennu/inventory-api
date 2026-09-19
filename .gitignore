@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment variables & secrets
+.env
+
+# Build output
+dist/
+
+# IDE & AI Tool folders
+.agents/
+.claude/
+.cursor/
+.devin/
