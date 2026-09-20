@@ -1,23 +1,30 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_fallback_key';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
-// Hashes a plain-text password before saving it to Neon PostgreSQL
-export const hashPassword = async (password: string): Promise<string> => {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
-};
+const JWT_SECRET = process.env.JWT_SECRET;
+const TOKEN_EXPIRY = process.env.TOKEN_EXPIRY || '7d';
+const SALT_ROUNDS = 10;
 
-// Compares a login attempt password against the stored database hash
-export const comparePassword = async (
-  plainText: string,
-  hashedText: string
-): Promise<boolean> => {
-  return await bcrypt.compare(plainText, hashedText);
-};
+export function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
 
-// Creates a digital token holding the user's ID and role, valid for 24 hours
-export const generateToken = (payload: { userId: number; role: string }): string => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-};
+export function comparePassword(plain: string, hashed: string): Promise<boolean> {
+  return bcrypt.compare(plain, hashed);
+}
+
+export function generateToken(payload: { userId: string; role: string }): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY as any });
+}
+
+export function verifyToken(token: string): { userId: string; role: string } {
+  try {
+    return jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+  } catch {
+    throw new Error('Invalid or expired token');
+  }
+}
