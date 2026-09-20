@@ -1,25 +1,24 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import authRoutes from './routes/authRoutes';
+import productRoutes from './routes/productRoutes';
 
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
-// Health check endpoint to verify server and database connectivity
-app.get('/health', async (req: Request, res: Response) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({ status: 'ok', message: 'Server and Neon Database are connected!' });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: 'Database connection failed.' });
-  }
+app.get('/', (_req, res) => {
+  res.json({ message: 'Inventory API is running' });
 });
 
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
