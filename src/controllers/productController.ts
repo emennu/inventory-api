@@ -1,3 +1,4 @@
+// Product CRUD operations with pagination and role-based access
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
