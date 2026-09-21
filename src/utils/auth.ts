@@ -1,3 +1,4 @@
+// Authentication utilities for password hashing and JWT token management
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
